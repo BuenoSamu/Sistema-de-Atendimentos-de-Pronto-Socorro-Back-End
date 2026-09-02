@@ -1,0 +1,30 @@
+{
+  "name": "sistema-de-atendimentos-de-pronto-socorro-back-end",
+  "version": "1.0.0",
+  "description": "Back-end do Sistema de Atendimentos de Pronto-Socorro \"Vihva\", desenvolvido para gerenciamento e acompanhamento dos atendimentos de pacientes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BuenoSamu/Sistema-de-Atendimentos-de-Pronto-Socorro-Back-End.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/BuenoSamu/Sistema-de-Atendimentos-de-Pronto-Socorro-Back-End/issues"
+  },
+  "homepage": "https://github.com/BuenoSamu/Sistema-de-Atendimentos-de-Pronto-Socorro-Back-End#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.24.3",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

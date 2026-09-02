@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: .
+    container_name: vihva-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - database
+
+  database:
+    image: mysql:8.0
+    container_name: vihva-database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: vihva
+      MYSQL_USER: vihva
+      MYSQL_PASSWORD: vihva
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

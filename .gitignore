@@ -1,0 +1,151 @@
+# ==========================================
+# DEPENDÊNCIAS
+# ==========================================
+
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.yarn-cache/
+
+
+# ==========================================
+# VARIÁVEIS DE AMBIENTE / SEGREDOS
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+# dotenvx
+.env.keys
+
+
+# ==========================================
+# LOGS
+# ==========================================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+# ==========================================
+# BUILD / PRODUÇÃO
+# ==========================================
+
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+
+
+# ==========================================
+# CACHE
+# ==========================================
+
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+
+# ==========================================
+# IDE / EDITORES
+# ==========================================
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+.idea/
+*.iml
+
+*.swp
+*.swo
+*~
+
+
+# ==========================================
+# SISTEMA OPERACIONAL
+# ==========================================
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+.directory
+
+
+# ==========================================
+# TESTES
+# ==========================================
+
+coverage/
+.nyc_output/
+
+
+# ==========================================
+# BANCO DE DADOS LOCAL
+# ==========================================
+
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Caso seu projeto use bancos locais temporários
+database.sqlite
+database.sqlite3
+
+
+# ==========================================
+# ARQUIVOS TEMPORÁRIOS
+# ==========================================
+
+tmp/
+temp/
+*.tmp
+*.temp
+
+
+# ==========================================
+# ARQUIVOS GERADOS
+# ==========================================
+
+*.pid
+*.seed
+*.pid.lock
+
+
+# ==========================================
+# BACKUPS
+# ==========================================
+
+*.bak
+*.backup
+*.old
+
+
+# ==========================================
+# ARQUIVOS DE CONFIGURAÇÃO LOCAL
+# ==========================================
+
+config.local.*
+*.local.json
