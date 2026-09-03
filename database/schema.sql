@@ -88,14 +88,9 @@ CREATE TABLE consultas_medicamentos (
 
     FOREIGN KEY (id_medicamento)
         REFERENCES medicamentos(id_medicamento)
-);
 
 CREATE TABLE USUARIOS (
-    id_usuario INT UNSIGNED AUTO_INCREMENT PRIMARY KEY
-);
-
-CREATE TABLE USUARIOS (
-    id_usuario    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_usuario    INT AUTO_INCREMENT PRIMARY KEY,
     nome_completo VARCHAR(150) NOT NULL,
     login         VARCHAR(100) NOT NULL UNIQUE,
     senha_hash    VARCHAR(300) NOT NULL
