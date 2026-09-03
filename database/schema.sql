@@ -89,7 +89,7 @@ CREATE TABLE consultas_medicamentos (
     FOREIGN KEY (id_medicamento)
         REFERENCES medicamentos(id_medicamento)
 
-CREATE TABLE USUARIOS (
+CREATE TABLE usuarios (
     id_usuario    INT AUTO_INCREMENT PRIMARY KEY,
     nome_completo VARCHAR(150) NOT NULL,
     login         VARCHAR(100) NOT NULL UNIQUE,
