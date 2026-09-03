@@ -5,7 +5,7 @@ const router = Router();
 
 /**
  * @swagger
- * /modules/medicamentos:
+ * /api/medicamentos:
  *   get:
  *     summary: Lista todos os medicamentos
  *     tags: [Medicamentos]
@@ -17,7 +17,7 @@ router.get("/", controller.getAll);
 
 /**
  * @swagger
- * /modules/medicamentos/{id}:
+ * /api/medicamentos/{id}:
  *   get:
  *     summary: Busca medicamento por ID
  *     tags: [Medicamentos]
@@ -37,7 +37,7 @@ router.get("/:id", controller.getById);
 
 /**
  * @swagger
- * /modules/medicamentos:
+ * /api/medicamentos:
  *   post:
  *     summary: Cria um novo medicamento
  *     tags: [Medicamentos]
