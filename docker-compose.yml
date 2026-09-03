@@ -17,14 +17,15 @@ services:
     container_name: vihva-database
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: vihva
-      MYSQL_USER: vihva
-      MYSQL_PASSWORD: vihva
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "3306:3306"
+      - "127.0.0.1:${DB_EXTERNAL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
 
 volumes:
   mysql_data:
