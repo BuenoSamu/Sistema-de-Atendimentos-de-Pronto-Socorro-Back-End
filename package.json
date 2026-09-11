@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/BuenoSamu/Sistema-de-Atendimentos-de-Pronto-Socorro-Back-End#readme",
   "dependencies": {
+    "@apidevtools/swagger-parser": "^13.0.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
