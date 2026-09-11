@@ -1,0 +1,96 @@
+# =========================
+# Dependências
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Variáveis de ambiente
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# NÃO ignorar:
+# .env.example
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# =========================
+# Arquivos temporários
+# =========================
+tmp/
+temp/
+*.tmp
+*.temp
+
+# =========================
+# Sistema operacional
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# VS Code
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# =========================
+# Testes / Coverage
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Build / distribuição
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Cache
+# =========================
+.cache/
+.parcel-cache/
+.eslintcache
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Arquivos de configuração local
+# =========================
+*.local
+
+# =========================
+# Chaves e certificados
+# =========================
+*.pem
+*.key
+*.crt
+*.p12
+
+# =========================
+# Arquivos de backup
+# =========================
+*.bak
+*.backup
+*~
