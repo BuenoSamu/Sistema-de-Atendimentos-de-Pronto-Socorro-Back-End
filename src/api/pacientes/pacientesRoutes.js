@@ -1,6 +1,11 @@
 // Importa Router do Express e a função listarPacientes do controlador de pacientes
-import { Router } from 'express';
-import { listarPacientes, cadastrarPaciente, atualizarPaciente } from "./pacientesController.js";
+import { Router } from "express";
+import { autenticarJWT } from "../../middlewares/auth.js";
+import {
+  listarPacientes,
+  cadastrarPaciente,
+  atualizarPaciente,
+} from "./pacientesController.js";
 
 const router = Router(); // Cria uma instância do Router do Express
 
@@ -11,6 +16,8 @@ const router = Router(); // Cria uma instância do Router do Express
  *   get:
  *     summary: Lista todos os pacientes ou busca pacientes pelo nome
  *     tags: [Pacientes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: nome
@@ -26,7 +33,7 @@ const router = Router(); // Cria uma instância do Router do Express
  *         description: Erro interno do servidor
  */
 
-router.get("/", listarPacientes);
+router.get("/", autenticarJWT, listarPacientes);
 
 // Documentação Swagger para a rota POST /api/pacientes
 /**
@@ -35,6 +42,8 @@ router.get("/", listarPacientes);
  *   post:
  *     summary: Cadastra um novo paciente
  *     tags: [Pacientes]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -92,7 +101,7 @@ router.get("/", listarPacientes);
  *       500:
  *         description: Erro interno do servidor
  */
-router.post("/", cadastrarPaciente);
+router.post("/", autenticarJWT, cadastrarPaciente);
 
 // Documentação Swagger para a rota PATCH /api/pacientes/{id}
 /**
@@ -101,6 +110,8 @@ router.post("/", cadastrarPaciente);
  *   patch:
  *     summary: Atualiza os dados de um paciente
  *     tags: [Pacientes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -152,6 +163,6 @@ router.post("/", cadastrarPaciente);
  *       500:
  *         description: Erro interno do servidor
  */
-router.patch("/:id", atualizarPaciente);    
+router.patch("/:id", autenticarJWT, atualizarPaciente);
 
 export default router; // Exporta o router para ser usado em outros arquivos.
