@@ -1,7 +1,7 @@
 services:
-  mysql:
+  database:
     image: mysql:8.0
-    container_name: vihva-mysql
+    container_name: vihva-database
 
     restart: unless-stopped
 
