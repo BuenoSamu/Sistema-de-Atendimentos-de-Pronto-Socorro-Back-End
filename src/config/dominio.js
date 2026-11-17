@@ -1,0 +1,7 @@
+export const STATUS_ATENDIMENTO = Object.freeze([
+  "TRIAGEM_PENDENTE", "CONSULTA_PENDENTE", "FINALIZADO", "CANCELADO",
+]);
+
+export const CLASSIFICACOES_MANCHESTER = Object.freeze([
+  "VERMELHO", "LARANJA", "AMARELO", "VERDE", "AZUL",
+]);

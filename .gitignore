@@ -94,3 +94,6 @@ docker-compose.override.yml
 *.bak
 *.backup
 *~
+# Todas as variantes locais de configuração, exceto o modelo seguro.
+.env.*
+!.env.example

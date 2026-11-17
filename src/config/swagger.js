@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import swaggerJSDoc from "swagger-jsdoc";
 
 const options = {
@@ -10,24 +11,22 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
+        url: "/",
         description: "Local",
       },
     ],
-
-    // Aqui entra o bearerAuth
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
   },
 
-  apis: ["./src/**/*.js"],
+  apis: [fileURLToPath(new URL("../api/**/*Routes.js", import.meta.url)).replaceAll("\\", "/")],
 };
 
 export const swaggerSpec = swaggerJSDoc(options);
+
+for (const operacoes of Object.values(swaggerSpec.paths)) {
+  for (const [metodo, operacao] of Object.entries(operacoes)) {
+    if (!['get', 'post', 'patch'].includes(metodo)) continue;
+    operacao.responses['400'] ??= { description: 'Dados inválidos' };
+    operacao.responses['500'] ??= { description: 'Erro interno inesperado' };
+    if (metodo === 'post') operacao.responses['409'] ??= { description: 'Registro duplicado' };
+  }
+}

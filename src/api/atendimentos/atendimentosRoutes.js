@@ -1,10 +1,8 @@
-// Importa o Router do Express.
+import { validarEntrada } from "../../middlewares/validarEntrada.js";
 import { Router } from "express";
 
-// Importa a função listarAtendimentos do controller.
 import { listarAtendimentos, buscarAtendimentoPorId, cadastrarAtendimento, atualizarAtendimento } from "./atendimentosController.js";
 
-// Cria uma instância do Router.
 const router = Router();
 /**
  * @swagger
@@ -19,8 +17,8 @@ const router = Router();
  *         schema:
  *           type: string
  *           enum:
- *             - ABERTO
- *             - EM_ANDAMENTO
+ *             - TRIAGEM_PENDENTE
+ *             - CONSULTA_PENDENTE
  *             - FINALIZADO
  *             - CANCELADO
  *         description: Filtra os atendimentos pelo status
@@ -40,9 +38,8 @@ const router = Router();
  *       500:
  *         description: Erro interno do servidor
  */
-router.get("/", listarAtendimentos);
+router.get("/", validarEntrada, listarAtendimentos);
 
-// Documentação Swagger para a rota de busca de atendimento por ID
 /**
  * @swagger
  * /api/atendimentos/{id}:
@@ -66,7 +63,7 @@ router.get("/", listarAtendimentos);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get("/:id", buscarAtendimentoPorId);
+router.get("/:id", validarEntrada, buscarAtendimentoPorId);
 
 /**
  * @swagger
@@ -96,9 +93,8 @@ router.get("/:id", buscarAtendimentoPorId);
  *       500:
  *         description: Erro interno do servidor
  */
-router.post("/", cadastrarAtendimento);
+router.post("/", validarEntrada, cadastrarAtendimento);
 
-// Documentação Swagger para a rota de atualização de atendimento
 /**
  * @swagger
  * /api/atendimentos/{id}:
@@ -124,11 +120,11 @@ router.post("/", cadastrarAtendimento);
  *               status:
  *                 type: string
  *                 enum:
- *                   - ABERTO
- *                   - EM_ANDAMENTO
+ *                   - TRIAGEM_PENDENTE
+ *                   - CONSULTA_PENDENTE
  *                   - FINALIZADO
  *                   - CANCELADO
- *                 example: EM_ANDAMENTO
+ *                 example: CONSULTA_PENDENTE
  *     responses:
  *       200:
  *         description: Atendimento atualizado com sucesso
@@ -139,7 +135,6 @@ router.post("/", cadastrarAtendimento);
  *       500:
  *         description: Erro interno do servidor
  */
-router.patch("/:id", atualizarAtendimento);
+router.patch("/:id", validarEntrada, atualizarAtendimento);
 
-// Exporta o router para ser utilizado no app.js.
 export default router;

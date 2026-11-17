@@ -1,13 +1,10 @@
-// Importa o Router do Express.
+import { validarEntrada } from "../../middlewares/validarEntrada.js";
 import { Router } from "express";
 
-// Importa a função listarTriagens.
 import { listarTriagens, buscarTriagemPorId, cadastrarTriagem, atualizarTriagem } from "./triagensController.js";
 
-// Cria uma instância do Router.
 const router = Router();
 
-// Documentação Swagger para a rota de listagem de triagens
 /**
  * @swagger
  * /api/triagens:
@@ -36,9 +33,8 @@ const router = Router();
  *       500:
  *         description: Erro interno do servidor
  */
-router.get("/", listarTriagens);
+router.get("/", validarEntrada, listarTriagens);
 
-// Documentação Swagger para a rota de busca de triagem por ID
 /**
  * @swagger
  * /api/triagens/{id}:
@@ -62,9 +58,8 @@ router.get("/", listarTriagens);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get("/:id", buscarTriagemPorId);
+router.get("/:id", validarEntrada, buscarTriagemPorId);
 
-// Documentação Swagger para a rota de cadastro de triagem
 /**
  * @swagger
  * /api/triagens:
@@ -121,9 +116,8 @@ router.get("/:id", buscarTriagemPorId);
  *       500:
  *         description: Erro interno do servidor
  */
-router.post("/", cadastrarTriagem);
+router.post("/", validarEntrada, cadastrarTriagem);
 
-// Documentação Swagger para a rota de atualização de triagem
 /**
  * @swagger
  * /api/triagens/{id}:
@@ -178,7 +172,6 @@ router.post("/", cadastrarTriagem);
  *       500:
  *         description: Erro interno do servidor
  */
-router.patch("/:id", atualizarTriagem);
+router.patch("/:id", validarEntrada, atualizarTriagem);
 
-// Exporta o router.
 export default router;

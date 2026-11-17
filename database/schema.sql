@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS vihva CHARACTER SET utf8mb4;
 USE vihva;
 
 CREATE TABLE IF NOT EXISTS pacientes (
@@ -22,14 +23,13 @@ CREATE TABLE IF NOT EXISTS atendimentos (
     data_hora_chegada DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_hora_saida DATETIME,
     status ENUM(
-        'ABERTO',
-        'EM_ANDAMENTO',
+        'TRIAGEM_PENDENTE',
+        'CONSULTA_PENDENTE',
         'FINALIZADO',
         'CANCELADO'
-    ) NOT NULL DEFAULT 'ABERTO',
+    ) NOT NULL DEFAULT 'TRIAGEM_PENDENTE',
 
-    FOREIGN KEY (id_paciente)
-        REFERENCES pacientes(id_paciente)
+    FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente)
 );
 
 CREATE TABLE IF NOT EXISTS triagens (
@@ -40,60 +40,16 @@ CREATE TABLE IF NOT EXISTS triagens (
     temperatura DECIMAL(4,1),
     batimentos_cardiacos SMALLINT UNSIGNED,
     queixas TEXT,
-    classificacao_manchester ENUM(
-        'VERMELHO',
-        'LARANJA',
-        'AMARELO',
-        'VERDE',
-        'AZUL'
-    ) NOT NULL,
+    classificacao_manchester ENUM('VERMELHO', 'LARANJA', 'AMARELO', 'VERDE', 'AZUL') NOT NULL,
 
-    FOREIGN KEY (id_atendimento)
-        REFERENCES atendimentos(id_atendimento)
+    FOREIGN KEY (id_atendimento) REFERENCES atendimentos(id_atendimento)
 );
 
 CREATE TABLE IF NOT EXISTS consultas (
     id_consulta INT AUTO_INCREMENT PRIMARY KEY,
     id_atendimento INT NOT NULL UNIQUE,
     observacoes TEXT,
+    medicamentos VARCHAR(255) DEFAULT NULL,
 
-    FOREIGN KEY (id_atendimento)
-        REFERENCES atendimentos(id_atendimento)
-);
-
-CREATE TABLE IF NOT EXISTS medicamentos (
-    id_medicamento INT AUTO_INCREMENT PRIMARY KEY,
-    nome_medicamento VARCHAR(150) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS consultas_medicamentos (
-    id_consulta INT NOT NULL,
-    id_medicamento INT NOT NULL,
-    posologia VARCHAR(200),
-
-    PRIMARY KEY (id_consulta, id_medicamento),
-
-    FOREIGN KEY (id_consulta)
-        REFERENCES consultas(id_consulta),
-
-    FOREIGN KEY (id_medicamento)
-        REFERENCES medicamentos(id_medicamento)
-);
-
-CREATE TABLE IF NOT EXISTS usuarios (
-    id_usuario INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    nome_completo VARCHAR(150) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    senha_hash VARCHAR(300) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS usuariostokens (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT UNSIGNED NOT NULL,
-    codigo_token VARCHAR(36) NOT NULL,
-    validade_token DATETIME NOT NULL,
-    usado TINYINT NOT NULL DEFAULT 0,
-
-    FOREIGN KEY (id_usuario)
-        REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_atendimento) REFERENCES atendimentos(id_atendimento)
 );
