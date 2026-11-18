@@ -71,11 +71,6 @@ out/
 .eslintcache
 
 # =========================
-# Docker
-# =========================
-docker-compose.override.yml
-
-# =========================
 # Arquivos de configuração local
 # =========================
 *.local

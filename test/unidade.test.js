@@ -25,7 +25,7 @@ test('Validação recusa corpos ausentes, tipos inválidos, data impossível e m
 test('Configuração ausente falha com o nome da variável e porta inválida é recusada',()=>{
   const original={...process.env};
   try {
-    Object.assign(process.env,{DB_HOST:'localhost',DB_USER:'teste',DB_NAME:'teste',DB_PORT:'3307'});
+    Object.assign(process.env,{DB_HOST:'localhost',DB_USER:'teste',DB_NAME:'teste',DB_PORT:'3306'});
     validarConfiguracao();process.env.DB_NAME='';assert.throws(validarConfiguracao,/DB_NAME/);
     process.env.DB_NAME='teste';process.env.DB_PORT='abc';assert.throws(validarConfiguracao,/DB_PORT/);
   } finally {for(const key of Object.keys(process.env)) if(!(key in original))delete process.env[key];Object.assign(process.env,original);}

@@ -32,7 +32,7 @@ test('Swagger documenta as 15 operações sem esquema de segurança', async () =
   }
 });
 
-test('Rotas de negócio respondem sem credenciais e as rotas antigas retornam 404', async t => {
+test('Rotas de negócio respondem sem credenciais e rotas inexistentes retornam 404', async t => {
   const consulta = t.mock.method(pool, 'query', async () => [[]]);
   const servidor = app.listen(0, '127.0.0.1');
   t.after(() => new Promise((resolve, reject) => servidor.close(error => error ? reject(error) : resolve())));
@@ -47,10 +47,8 @@ test('Rotas de negócio respondem sem credenciais e as rotas antigas retornam 40
   assert.equal(consulta.mock.callCount(), 4);
 
   for (const [method, rota] of [
-    ['POST', '/api/auth/login'],
-    ['GET', '/api/auth/confirmar-cadastro'],
-    ['POST', '/api/usuarios'],
-    ['GET', '/api/usuarios'],
+    ['GET', '/api/rota-inexistente'],
+    ['POST', '/api/rota-inexistente'],
   ]) {
     const response = await fetch(url + rota, { method });
     assert.equal(response.status, 404, method + ' ' + rota);

@@ -1,21 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
+import mysql from 'mysql2/promise';
 import 'dotenv/config';
 
-test('Fluxos HTTP com MySQL 8 isolado', { skip: process.env.RUN_DB_TESTS !== '1', timeout: 90000 }, async t => {
+test('Fluxos HTTP com MySQL local isolado', { skip: process.env.RUN_DB_TESTS !== '1', timeout: 90000 }, async t => {
   const banco = 'vihva_teste_' + randomBytes(6).toString('hex');
-  const container = process.env.TEST_DB_CONTAINER || 'vihva-database';
-  const sqlAdmin = sql => execFileSync('docker', ['exec', '-i', container, 'sh', '-c', 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec mysql -uroot'], { input: sql, stdio: ['pipe','pipe','pipe'] });
-  const schema = (await readFile(new URL('../database/schema.sql', import.meta.url), 'utf8')).replace(/^CREATE DATABASE[^\n]+\n/m, '').replace('USE vihva;', 'USE `' + banco + '`;');
-  const usuario = process.env.DB_USER.replaceAll("'", "''");
-  let pool, server;
-  sqlAdmin('CREATE DATABASE `' + banco + '`;');
+  const host = process.env.DB_HOST || '127.0.0.1';
+  const port = Number(process.env.DB_PORT || 3306);
+  const user = process.env.TEST_DB_USER;
+  const password = process.env.TEST_DB_PASSWORD;
+  if (!['127.0.0.1', 'localhost', '::1'].includes(host)) {
+    throw new Error('Use um MySQL local para os testes de integração.');
+  }
+  if (!user) throw new Error('Defina TEST_DB_USER para os testes de integração.');
+
+  const schema = await readFile(new URL('../database/schema.sql', import.meta.url), 'utf8');
+  const cabecalho = /^CREATE DATABASE IF NOT EXISTS vihva CHARACTER SET utf8mb4;\s*USE vihva;\s*/i;
+  assert.match(schema, cabecalho);
+
+  const admin = await mysql.createConnection({ host, port, user, password, multipleStatements: true });
+  let pool, server, bancoCriado;
   try {
-    sqlAdmin('GRANT ALL ON `' + banco + '`.* TO ' + "'" + usuario + "'@'%';" + schema);
-    process.env.DB_NAME = banco;
+    await admin.query('CREATE DATABASE ?? CHARACTER SET utf8mb4', [banco]);
+    bancoCriado = true;
+    await admin.query('USE ??', [banco]);
+    await admin.query(schema.replace(cabecalho, ''));
+
+    Object.assign(process.env, { DB_HOST: host, DB_PORT: String(port), DB_USER: user, DB_PASSWORD: password ?? '', DB_NAME: banco });
     ({ pool } = await import('../src/config/db.js'));
     const { default: app } = await import('../src/app.js');
     server = app.listen(0, '127.0.0.1');
@@ -109,8 +123,15 @@ test('Fluxos HTTP com MySQL 8 isolado', { skip: process.env.RUN_DB_TESTS !== '1'
       const erro=await run({DB_NAME:''});assert.equal(erro.code,1);assert.match(erro.out,/DB_NAME/);
     });
   } finally {
-    if(server) await new Promise(resolve=>server.close(resolve));
-    if(pool) await pool.end();
-    sqlAdmin('DROP DATABASE `' + banco + '`;');
+    try {
+      if (server) await new Promise(resolve => server.close(resolve));
+      if (pool) await pool.end();
+    } finally {
+      try {
+        if (bancoCriado) await admin.query('DROP DATABASE ??', [banco]);
+      } finally {
+        await admin.end();
+      }
+    }
   }
 });

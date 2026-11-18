@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS consultas (
     id_consulta INT AUTO_INCREMENT PRIMARY KEY,
     id_atendimento INT NOT NULL UNIQUE,
     observacoes TEXT,
-    medicamentos VARCHAR(255) DEFAULT NULL,
 
     FOREIGN KEY (id_atendimento) REFERENCES atendimentos(id_atendimento)
 );

@@ -1,20 +1,25 @@
 # VIHVA — Backend
 
-API acadêmica em Node.js, Express e MySQL 8 para pacientes, atendimentos, triagens e consultas. As operações são acessíveis sem login e o Swagger não exige credenciais. A API e a porta publicada do MySQL escutam apenas em `127.0.0.1`. Use dados fictícios na demonstração e mantenha este backend sem controle de acesso fora de redes compartilhadas e da internet.
+API acadêmica em Node.js, Express e MySQL 8 para pacientes, atendimentos, triagens e consultas. As operações são acessíveis sem login e o Swagger não exige credenciais. A API escuta apenas em `127.0.0.1`. Use dados fictícios na demonstração e mantenha este backend sem controle de acesso fora de redes compartilhadas e da internet.
 
 ## Executar localmente
 
-1. Abra o Docker Desktop e execute `npm.cmd ci` na pasta do backend.
-2. Copie `.env.example` para `.env` e informe `DB_PASSWORD` e `DB_ROOT_PASSWORD`. Mantenha as senhas fora do Git.
-3. Execute `docker compose up -d` e aguarde o banco ficar saudável.
-4. Execute `npm.cmd run dev` (ou `npm.cmd start`).
-5. Abra [Swagger](http://127.0.0.1:3000/docs/). Se configurar outra `PORT`, use a mesma porta na URL.
+Pré-requisitos: Node.js, **MySQL Server** instalado e em execução, e um cliente como o [Beekeeper Studio](https://www.beekeeperstudio.io/community/). O Beekeeper é a interface para administrar o banco.
 
-O MySQL usa o banco `vihva`, porta externa 3307 e porta interna 3306. O backend verifica a conexão antes de iniciar.
+1. No Beekeeper, crie uma conexão **MySQL** por TCP para `127.0.0.1:3306`. Use o administrador do MySQL local (geralmente `root`) e a senha escolhida na instalação. Deixe o campo de banco vazio no primeiro acesso.
+2. Abra `database/schema.sql` no editor SQL e execute o arquivo inteiro. Ele cria o banco `vihva` e as quatro tabelas. Confira com `SHOW TABLES FROM vihva;`.
+3. Em uma nova aba SQL, crie um usuário local para a API. Substitua `SUA_SENHA_LOCAL` por uma senha sua antes de executar:
 
-**Volume existente:** o Docker só aplica `database/schema.sql` ao inicializar um volume novo. O Compose fixa o nome do projeto para reutilizar o volume mesmo se a pasta do backend mudar de nome.
+   ```sql
+   CREATE USER IF NOT EXISTS 'vihva_user'@'127.0.0.1' IDENTIFIED BY 'SUA_SENHA_LOCAL';
+   GRANT SELECT, INSERT, UPDATE ON vihva.* TO 'vihva_user'@'127.0.0.1';
+   ```
 
-A coluna opcional `consultas.medicamentos` do schema novo guarda texto livre e não depende do catálogo antigo. Se o volume ainda usa os status `ABERTO` e `EM_ANDAMENTO` ou não tem essa coluna de texto, o alinhamento dessas tabelas é uma migração separada. Não apague o volume para atualizar a aplicação.
+   Se o usuário já existir, use a senha dele. O primeiro comando não troca senhas de contas existentes.
+4. Na pasta do backend, execute `npm.cmd ci`. Se ainda não tiver um `.env`, copie `.env.example` para `.env`. Use `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_NAME=vihva`, `DB_USER=vihva_user` e a senha dessa conta em `DB_PASSWORD`. Se seu MySQL escutar em outra porta, use a porta dessa instalação. Mantenha o `.env` fora do Git.
+5. Execute `npm.cmd run dev` e abra [Swagger](http://127.0.0.1:3000/docs/). No Swagger, rode `GET /api/pacientes` para confirmar a leitura de dados.
+
+**Banco anterior:** o script cria tabelas que não existem. Ele não importa registros de outra instalação nem atualiza as tabelas já criadas. Se quiser trazer dados antigos, mantenha a origem intacta até exportar e conferir a importação. Uma base nova é suficiente para testar com dados fictícios.
 
 ## Endpoints
 
@@ -32,6 +37,6 @@ Erros usam `{ mensagem }`: 400 para entrada inválida, 404 para recurso ou rota 
 ## Testes
 
 - `npm.cmd test`: validação de entradas, rotas HTTP com banco simulado e contrato Swagger.
-- PowerShell: `$env:RUN_DB_TESTS='1'; npm.cmd test`: inclui integração com MySQL 8, usando o container `vihva-database` (ou `TEST_DB_CONTAINER`). A suíte cria e remove um banco de teste aleatório, sem alterar o banco `vihva`.
+- Integração opcional com MySQL local: em um terminal PowerShell, defina `$env:RUN_DB_TESTS='1'`, `$env:TEST_DB_USER='root'` (ou outra conta local autorizada a criar e excluir bancos de teste) e `$env:TEST_DB_PASSWORD = Read-Host 'Senha da conta de teste' -MaskInput` no PowerShell 7. Execute `npm.cmd test` e depois feche esse terminal. A integração usa o host e a porta do `.env` e cria e remove um banco aleatório separado. A conta da API continua com acesso apenas ao banco `vihva`.
 
 O `.env` e `node_modules` ficam fora do Git.
