@@ -34,9 +34,8 @@ O banco permite uma triagem e uma consulta por atendimento. Status de atendiment
 
 Erros usam `{ mensagem }`: 400 para entrada inválida, 404 para recurso ou rota inexistente, 409 para duplicidade e 500 para erro inesperado. O Swagger detalha os corpos e filtros de cada operação.
 
-## Testes
+## Conferir a API
 
-- `npm.cmd test`: validação de entradas, rotas HTTP com banco simulado e contrato Swagger.
-- Integração opcional com MySQL local: em um terminal PowerShell, defina `$env:RUN_DB_TESTS='1'`, `$env:TEST_DB_USER='root'` (ou outra conta local autorizada a criar e excluir bancos de teste) e `$env:TEST_DB_PASSWORD = Read-Host 'Senha da conta de teste' -MaskInput` no PowerShell 7. Execute `npm.cmd test` e depois feche esse terminal. A integração usa o host e a porta do `.env` e cria e remove um banco aleatório separado. A conta da API continua com acesso apenas ao banco `vihva`.
+Com o backend rodando, abra http://127.0.0.1:3000/docs/. Expanda uma operação, clique em **Try it out** e em **Execute** para enviar uma requisição. Comece por `GET /api/pacientes`: uma resposta 200 confirma que a API consultou o banco; `[]` indica que a lista está vazia.
 
 O `.env` e `node_modules` ficam fora do Git.
