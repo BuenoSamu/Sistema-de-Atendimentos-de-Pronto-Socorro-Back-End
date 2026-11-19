@@ -1,11 +1,13 @@
 import { CLASSIFICACOES_MANCHESTER } from "../../config/dominio.js";
-import { pool } from "../../config/db.js";
+import * as triagensRepository from "./triagensRepository.js";
+
 export async function listarTriagens(req, res, next) {
   try {
     const { classificacao } = req.query;
+    const filtros = {};
+
     if (classificacao) {
       const classificacaoFormatada = classificacao.toUpperCase();
-
 
       if (!CLASSIFICACOES_MANCHESTER.includes(classificacaoFormatada)) {
         return res.status(400).json({
@@ -13,54 +15,43 @@ export async function listarTriagens(req, res, next) {
         });
       }
 
-      const [triagens] = await pool.query(
-        `
-        SELECT *
-        FROM triagens
-        WHERE classificacao_manchester = ?
-        ORDER BY id_triagem ASC
-        `,
-        [classificacaoFormatada]
-      );
-      return res.status(200).json(triagens);
+      filtros.classificacao = classificacaoFormatada;
     }
 
-    const [triagens] = await pool.query(
-      "SELECT * FROM triagens ORDER BY id_triagem ASC"
-    );
+    const triagens = await triagensRepository.listar(filtros);
+
     return res.status(200).json(triagens);
 
   } catch (error) {
-
     next(error);
   }
 }
+
 export async function buscarTriagemPorId(req, res, next) {
   try {
     const id = Number(req.params.id);
+
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({
         mensagem: "ID da triagem inválido."
       });
     }
 
-    const [triagens] = await pool.query(
-      "SELECT * FROM triagens WHERE id_triagem = ?",
-      [id]
-    );
+    const triagem = await triagensRepository.buscarPorId(id);
 
-    if (triagens.length === 0) {
+    if (!triagem) {
       return res.status(404).json({
         mensagem: "Triagem não encontrada."
       });
     }
-    return res.status(200).json(triagens[0]);
+
+    return res.status(200).json(triagem);
 
   } catch (error) {
-
     next(error);
   }
 }
+
 export async function cadastrarTriagem(req, res, next) {
   try {
     const {
@@ -79,7 +70,9 @@ export async function cadastrarTriagem(req, res, next) {
           "ID do atendimento e classificação Manchester são obrigatórios."
       });
     }
+
     const idAtendimento = Number(id_atendimento);
+
     if (!Number.isInteger(idAtendimento) || idAtendimento <= 0) {
       return res.status(400).json({
         mensagem: "ID do atendimento inválido."
@@ -94,64 +87,46 @@ export async function cadastrarTriagem(req, res, next) {
       });
     }
 
-    const [atendimentos] = await pool.query(
-      "SELECT id_atendimento FROM atendimentos WHERE id_atendimento = ?",
-      [idAtendimento]
-    );
+    const existe = await triagensRepository.atendimentoExiste(idAtendimento);
 
-    if (atendimentos.length === 0) {
+    if (!existe) {
       return res.status(404).json({
         mensagem: "Atendimento não encontrado."
       });
     }
 
-    const [triagensExistentes] = await pool.query(
-      "SELECT id_triagem FROM triagens WHERE id_atendimento = ?",
-      [idAtendimento]
-    );
+    const triagemExistente = await triagensRepository.triagemExiste(idAtendimento);
 
-    if (triagensExistentes.length > 0) {
+    if (triagemExistente) {
       return res.status(409).json({
         mensagem: "Este atendimento já possui uma triagem cadastrada."
       });
     }
 
-    const [resultado] = await pool.query(
-      `
-      INSERT INTO triagens (
-        id_atendimento,
-        pressao_sistolica,
-        pressao_diastolica,
-        temperatura,
-        batimentos_cardiacos,
-        queixas,
-        classificacao_manchester
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        idAtendimento,
-        pressao_sistolica ?? null,
-        pressao_diastolica ?? null,
-        temperatura ?? null,
-        batimentos_cardiacos ?? null,
-        queixas ?? null,
-        classificacao
-      ]
-    );
+    const idTriagem = await triagensRepository.criar({
+      idAtendimento,
+      pressao_sistolica: pressao_sistolica ?? null,
+      pressao_diastolica: pressao_diastolica ?? null,
+      temperatura: temperatura ?? null,
+      batimentos_cardiacos: batimentos_cardiacos ?? null,
+      queixas: queixas ?? null,
+      classificacao_manchester: classificacao
+    });
+
     return res.status(201).json({
       mensagem: "Triagem cadastrada com sucesso.",
-      id_triagem: resultado.insertId
+      id_triagem: idTriagem
     });
 
   } catch (error) {
-
     next(error);
   }
 }
+
 export async function atualizarTriagem(req, res, next) {
   try {
     const id = Number(req.params.id);
+
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({
         mensagem: "ID da triagem inválido."
@@ -163,6 +138,7 @@ export async function atualizarTriagem(req, res, next) {
         mensagem: "Nenhum dado foi informado para atualização."
       });
     }
+
     const {
       pressao_sistolica,
       pressao_diastolica,
@@ -173,11 +149,7 @@ export async function atualizarTriagem(req, res, next) {
     } = req.body;
 
     if (classificacao_manchester !== undefined) {
-
-
-
-      const classificacao =
-        classificacao_manchester.toUpperCase();
+      const classificacao = classificacao_manchester.toUpperCase();
 
       if (!CLASSIFICACOES_MANCHESTER.includes(classificacao)) {
         return res.status(400).json({
@@ -186,70 +158,53 @@ export async function atualizarTriagem(req, res, next) {
       }
     }
 
-    const [triagens] = await pool.query(
-      "SELECT id_triagem FROM triagens WHERE id_triagem = ?",
-      [id]
-    );
+    const triagem = await triagensRepository.buscarPorId(id);
 
-    if (triagens.length === 0) {
+    if (!triagem) {
       return res.status(404).json({
         mensagem: "Triagem não encontrada."
       });
     }
 
-    const campos = [];
-    const valores = [];
+    const dados = {};
 
     if (pressao_sistolica !== undefined) {
-      campos.push("pressao_sistolica = ?");
-      valores.push(pressao_sistolica);
+      dados.pressao_sistolica = pressao_sistolica;
     }
 
     if (pressao_diastolica !== undefined) {
-      campos.push("pressao_diastolica = ?");
-      valores.push(pressao_diastolica);
+      dados.pressao_diastolica = pressao_diastolica;
     }
 
     if (temperatura !== undefined) {
-      campos.push("temperatura = ?");
-      valores.push(temperatura);
+      dados.temperatura = temperatura;
     }
 
     if (batimentos_cardiacos !== undefined) {
-      campos.push("batimentos_cardiacos = ?");
-      valores.push(batimentos_cardiacos);
+      dados.batimentos_cardiacos = batimentos_cardiacos;
     }
 
     if (queixas !== undefined) {
-      campos.push("queixas = ?");
-      valores.push(queixas);
+      dados.queixas = queixas;
     }
 
     if (classificacao_manchester !== undefined) {
-      campos.push("classificacao_manchester = ?");
-      valores.push(classificacao_manchester.toUpperCase());
+      dados.classificacao_manchester = classificacao_manchester.toUpperCase();
     }
 
-    if (campos.length === 0) {
+    if (Object.keys(dados).length === 0) {
       return res.status(400).json({
         mensagem: "Nenhum campo válido foi informado para atualização."
       });
     }
-    valores.push(id);
-    await pool.query(
-      `
-      UPDATE triagens
-      SET ${campos.join(", ")}
-      WHERE id_triagem = ?
-      `,
-      valores
-    );
+
+    await triagensRepository.atualizar(id, dados);
+
     return res.status(200).json({
       mensagem: "Triagem atualizada com sucesso."
     });
 
   } catch (error) {
-
     next(error);
   }
 }

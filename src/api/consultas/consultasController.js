@@ -1,11 +1,8 @@
-import { pool } from "../../config/db.js";
-
+import * as consultasRepository from "./consultasRepository.js";
 
 export async function listarConsultas(req, res, next) {
   try {
-    const [consultas] = await pool.query(
-      "SELECT * FROM consultas ORDER BY id_consulta ASC"
-    );
+    const consultas = await consultasRepository.listar();
 
     return res.status(200).json(consultas);
 
@@ -13,7 +10,6 @@ export async function listarConsultas(req, res, next) {
     next(error);
   }
 }
-
 
 export async function buscarConsultaPorId(req, res, next) {
   try {
@@ -25,24 +21,20 @@ export async function buscarConsultaPorId(req, res, next) {
       });
     }
 
-    const [consultas] = await pool.query(
-      "SELECT * FROM consultas WHERE id_consulta = ?",
-      [id]
-    );
+    const consulta = await consultasRepository.buscarPorId(id);
 
-    if (consultas.length === 0) {
+    if (!consulta) {
       return res.status(404).json({
         mensagem: "Consulta não encontrada."
       });
     }
 
-    return res.status(200).json(consultas[0]);
+    return res.status(200).json(consulta);
 
   } catch (error) {
     next(error);
   }
 }
-
 
 export async function cadastrarConsulta(req, res, next) {
   try {
@@ -65,52 +57,36 @@ export async function cadastrarConsulta(req, res, next) {
       });
     }
 
-    const [atendimentos] = await pool.query(
-      "SELECT id_atendimento FROM atendimentos WHERE id_atendimento = ?",
-      [idAtendimento]
-    );
+    const existe = await consultasRepository.atendimentoExiste(idAtendimento);
 
-    if (atendimentos.length === 0) {
+    if (!existe) {
       return res.status(404).json({
         mensagem: "Atendimento não encontrado."
       });
     }
 
-    const [consultasExistentes] = await pool.query(
-      "SELECT id_consulta FROM consultas WHERE id_atendimento = ?",
-      [idAtendimento]
-    );
+    const consultaExistente = await consultasRepository.consultaExiste(idAtendimento);
 
-    if (consultasExistentes.length > 0) {
+    if (consultaExistente) {
       return res.status(409).json({
         mensagem: "Este atendimento já possui uma consulta cadastrada."
       });
     }
 
-    const [resultado] = await pool.query(
-      `
-      INSERT INTO consultas (
-        id_atendimento,
-        observacoes
-      )
-      VALUES (?, ?)
-      `,
-      [
-        idAtendimento,
-        observacoes ?? null
-      ]
+    const idConsulta = await consultasRepository.criar(
+      idAtendimento,
+      observacoes ?? null
     );
 
     return res.status(201).json({
       mensagem: "Consulta cadastrada com sucesso.",
-      id_consulta: resultado.insertId
+      id_consulta: idConsulta
     });
 
   } catch (error) {
     next(error);
   }
 }
-
 
 export async function atualizarConsulta(req, res, next) {
   try {
@@ -130,27 +106,17 @@ export async function atualizarConsulta(req, res, next) {
 
     const { observacoes } = req.body;
 
-    const [consultas] = await pool.query(
-      "SELECT id_consulta FROM consultas WHERE id_consulta = ?",
-      [id]
-    );
+    const consulta = await consultasRepository.buscarPorId(id);
 
-    if (consultas.length === 0) {
+    if (!consulta) {
       return res.status(404).json({
         mensagem: "Consulta não encontrada."
       });
     }
 
-    await pool.query(
-      `
-      UPDATE consultas
-      SET observacoes = ?
-      WHERE id_consulta = ?
-      `,
-      [
-        observacoes ?? null,
-        id
-      ]
+    await consultasRepository.atualizar(
+      id,
+      observacoes ?? null
     );
 
     return res.status(200).json({
