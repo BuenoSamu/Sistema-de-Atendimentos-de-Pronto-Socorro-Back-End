@@ -24,7 +24,7 @@ export async function listar(nome) {
     valores.push(`%${nome}%`);
   }
 
-  sql += " ORDER BY id_paciente ASC";
+  sql += " ORDER BY nome_completo ASC";
 
   const [pacientes] = await pool.query(sql, valores);
   return pacientes;
@@ -75,7 +75,7 @@ export async function atualizar(id, dados) {
     return 0;
   }
 
-  const atribuicoes = campos.map(campo => `${campo} = ?`).join(", ");
+  const atribuicoes = campos.map(campo => `${campo} = COALESCE(?, ${campo})`).join(", ");
   const valores = campos.map(campo => dados[campo]);
 
   const [resultado] = await pool.query(
